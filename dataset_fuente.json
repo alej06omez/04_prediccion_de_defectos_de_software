@@ -1,0 +1,9 @@
+{
+  "proyecto": "Predicción de defectos de software",
+  "nombre": "NASA PC1 (software defect datasets)",
+  "url": "https://www.openml.org/d/1068",
+  "openml_id": 1068,
+  "modo": "openml",
+  "licencia": "Dataset academico PROMISE / NASA MDP. Verificar terminos antes de uso no academico.",
+  "nota": "descargar_dataset.py obtiene PC1 y el ETL lo deja en data/processed/modulos.csv. El entrenamiento usa esas metricas McCabe/Halstead, no datos sinteticos."
+}

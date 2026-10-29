@@ -1,0 +1,17 @@
+{
+  "titulo": "Predicción de defectos de software",
+  "coleccion": 1,
+  "numero": 4,
+  "db": "ia_c1_p04",
+  "tipo_modelo": "clasificacion_defectos",
+  "docente": "Julian Rene Muñoz Burbano",
+  "openml_id": 1068,
+  "dataset_nombre": "pc1",
+  "dataset_url": "https://www.openml.org/d/1068",
+  "umbrales_riesgo": {
+    "medio": 0.3,
+    "alto": 0.6
+  },
+  "cobertura_minima": 0.5,
+  "loc_sin_cobertura_alto": 200
+}
