@@ -84,11 +84,26 @@ with tab1:
         st.info("Entrene el modelo y pulse Actualizar ranking.")
 
 with tab2:
+    with st.expander("Calcular métricas desde código C", expanded=False):
+        analysis_module_id = st.text_input("ID del módulo analizado", "codigo-pegado", key="analysis_module_id")
+        pasted_code = st.text_area("Código C", height=240, key="code_to_analyze")
+        if st.button("Calcular métricas", key="analyze_code_button", type="primary"):
+            try:
+                response = post("/api/analyze-code", json={"code": pasted_code, "module_id": analysis_module_id})
+                response.raise_for_status()
+                analysis = response.json()
+                st.session_state["analyzed_metrics"] = analysis["metrics"]
+                st.session_state["analyzed_module_id"] = analysis_module_id
+                st.success("Métricas calculadas de forma determinista. Se precargaron en el formulario inferior.")
+                st.json(analysis)
+            except requests.RequestException as e:
+                st.error(f"No se pudo analizar el código: {e}")
     with st.form("inference"):
-        module_id = st.text_input("module_id", "auth-service")
+        module_id = st.text_input("module_id", st.session_state.get("analyzed_module_id", "auth-service"))
         cols = st.columns(3)
         metricas = {}
         defaults = {"loc": 180.0, "v(g)": 12.0, "lOComment": 2.0, "branchCount": 20.0}
+        defaults.update(st.session_state.get("analyzed_metrics", {}))
         for i, name in enumerate(features):
             metricas[name] = cols[i % 3].number_input(name, value=float(defaults.get(name, 1.0)))
         cobertura = st.slider("Cobertura de tests (regla de negocio)", 0.0, 1.0, 0.4)

@@ -44,10 +44,13 @@ PROMISE_ARFF = "http://promise.site.uottawa.ca/SERepository/datasets/pc1.arff"
 
 
 def _rename_columns(df: pd.DataFrame) -> pd.DataFrame:
+    canon = {name.lower(): name for name in FEATURES}
+    for alias, name in FEATURE_ALIASES.items():
+        canon[alias.lower()] = name
     mapping = {}
     for col in df.columns:
         key = str(col).strip()
-        mapping[col] = FEATURE_ALIASES.get(key, key)
+        mapping[col] = canon.get(key.lower(), FEATURE_ALIASES.get(key, key))
     return df.rename(columns=mapping)
 
 
@@ -145,9 +148,25 @@ def vectorize(metricas: dict, fill: dict[str, float] | None = None) -> tuple[np.
     return np.asarray([values], dtype=float), imputed
 
 
+def _arff_to_csv(src: Path, dest: Path) -> Path:
+    from scipy.io import arff
+
+    text = src.read_text(encoding="utf-8", errors="replace")
+    if text.startswith("%%"):
+        text = "\n".join(text.splitlines()[1:])
+    data, _ = arff.loadarff(io.BytesIO(text.encode("utf-8")))
+    pd.DataFrame(data).to_csv(dest, index=False)
+    return dest
+
+
 def descargar(destino: Path | None = None) -> Path:
     DATA_RAW.mkdir(parents=True, exist_ok=True)
     dest = destino or RAW_CSV
+    if dest.exists():
+        return dest
+    local_arff = DATA_RAW / "pc1.arff"
+    if local_arff.exists():
+        return _arff_to_csv(local_arff, dest)
     try:
         from sklearn.datasets import fetch_openml
 
@@ -158,18 +177,22 @@ def descargar(destino: Path | None = None) -> Path:
             parser="auto",
             data_home=str(cache),
         )
-        frame = ds.frame
-        frame.to_csv(dest, index=False)
+        ds.frame.to_csv(dest, index=False)
         return dest
-    except Exception:
-        pass
-    with urllib.request.urlopen(PROMISE_ARFF, timeout=30) as resp:
-        raw = resp.read()
-    from scipy.io import arff
+    except Exception as exc:
+        print("OpenML no disponible:", exc)
+    try:
+        with urllib.request.urlopen(PROMISE_ARFF, timeout=30) as resp:
+            raw = resp.read()
+        from scipy.io import arff
 
-    data, _ = arff.loadarff(io.BytesIO(raw))
-    pd.DataFrame(data).to_csv(dest, index=False)
-    return dest
+        data, _ = arff.loadarff(io.BytesIO(raw))
+        pd.DataFrame(data).to_csv(dest, index=False)
+        return dest
+    except Exception as exc:
+        raise FileNotFoundError(
+            "No se pudo descargar PC1. Coloque pc1.csv o pc1.arff en data/raw/."
+        ) from exc
 
 
 def preparar(raw_path: Path | None = None) -> pd.DataFrame:

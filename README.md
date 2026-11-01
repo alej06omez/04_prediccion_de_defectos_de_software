@@ -37,6 +37,12 @@ Frontend: http://localhost:8501 · API: http://localhost:8000/docs
 
 Roles en el sidebar: **operativo** (predicción), **analista** (métricas del modelo), **admin** (reentrenar). Si define `API_KEY` en `.env`, envíela en `X-API-Key`.
 
+## Análisis determinista de código C
+
+`POST /api/analyze-code` recibe `{"code": "...", "module_id": "..."}`. El endpoint valida que la entrada parezca C, obtiene `loc`, `v(g)` y `branchCount` con `lizard`, y calcula Halstead a partir de tokens de C con `pycparser` y fórmulas fijas. El resultado y el hash SHA-256 del código se guardan en MongoDB; no se envía el código a un LLM ni se requiere una API key de proveedor de LLM.
+
+`ev(g)` e `iv(g)` se devuelven iguales a `v(g)` como valores `estimated`. Su cálculo exacto requiere construir y analizar el grafo de flujo de control completo; el endpoint lo declara en `warnings` y en la descripción OpenAPI. La clasificación de operandos y operadores sigue una convención léxica determinista de C, que puede diferir de las convenciones usadas al generar NASA PC1.
+
 ## Docker
 
 ```bat

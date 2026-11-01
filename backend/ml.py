@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 
 import joblib
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     confusion_matrix,
@@ -89,18 +90,19 @@ def train(df=None) -> dict:
     return {"meta": meta, "metrics": metrics}
 
 
-def explicar(modelo, x: np.ndarray, top: int = 3) -> list[dict]:
+def explicar(modelo, x: pd.DataFrame, top: int = 3) -> list[dict]:
     scaler = modelo.named_steps["standardscaler"]
     clf = modelo.named_steps["logisticregression"]
     xs = scaler.transform(x)[0]
     contrib = xs * clf.coef_[0]
+    values = x.to_numpy()[0]
     order = np.argsort(np.abs(contrib))[::-1][:top]
     out = []
     for i in order:
         out.append(
             {
                 "metrica": FEATURES[int(i)],
-                "valor": float(x[0, i]),
+                "valor": float(values[i]),
                 "contribucion": float(contrib[i]),
                 "efecto": "aumenta_riesgo" if contrib[i] > 0 else "reduce_riesgo",
             }
@@ -116,8 +118,9 @@ def predict(payload: dict) -> dict:
     if not isinstance(metricas, dict) or not metricas:
         raise ValueError("Se requiere metricas: objeto con nombres NASA (loc, v(g), ...).")
     x, imputed = vectorize(metricas, meta.get("imputacion"))
-    proba = float(modelo.predict_proba(x)[0, 1])
-    loc = float(x[0, FEATURES.index("loc")])
+    x_df = pd.DataFrame(x, columns=FEATURES)
+    proba = float(modelo.predict_proba(x_df)[0, 1])
+    loc = float(x_df.iloc[0]["loc"])
     reglas = aplicar_reglas(
         proba,
         loc=loc,
@@ -128,7 +131,7 @@ def predict(payload: dict) -> dict:
         "module_id": str(payload.get("module_id", "sin-id")),
         "probabilidad_defecto": round(proba, 4),
         "prediccion_clase": int(proba >= 0.5),
-        "explicacion": explicar(modelo, x),
+        "explicacion": explicar(modelo, x_df),
         "metricas_imputadas": imputed,
         "version_modelo": meta["version_modelo"],
         "dataset_hash": meta["dataset_hash"],
