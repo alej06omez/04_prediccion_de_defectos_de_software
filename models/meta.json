@@ -1,5 +1,5 @@
 {
-  "version_modelo": "20261101T151506Z",
+  "version_modelo": "20261101T160718Z",
   "algoritmo": "StandardScaler + LogisticRegression(class_weight=balanced)",
   "features": [
     "loc",
@@ -26,7 +26,7 @@
   ],
   "dataset_hash": "8f4caf03ea356bab",
   "n_filas": 1109,
-  "entrenado_en": "2026-11-01T15:15:06.412073+00:00",
+  "entrenado_en": "2026-11-01T16:07:18.463562+00:00",
   "imputacion": {
     "loc": 13.0,
     "v(g)": 3.0,

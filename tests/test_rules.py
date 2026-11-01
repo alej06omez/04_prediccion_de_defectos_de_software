@@ -15,6 +15,11 @@ def test_modulo_critico_eleva_bajo():
 
 
 def test_baja_cobertura_y_loc_alto():
-    r = aplicar_reglas(0.2, loc=250, cobertura_tests=0.1, es_modulo_critico=False)
+    r = aplicar_reglas(0.2, loc=30, cobertura_tests=0.1, es_modulo_critico=False, v_g=6)
     assert r["nivel_riesgo"] == "alto"
     assert r["origen_nivel"] == "reglas_negocio"
+
+
+def test_baja_densidad_no_dispara_override():
+    r = aplicar_reglas(0.2, loc=30, cobertura_tests=0.1, v_g=3)
+    assert r["nivel_riesgo"] == "bajo"

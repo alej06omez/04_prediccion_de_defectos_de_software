@@ -12,6 +12,7 @@
     "medio": 0.3,
     "alto": 0.6
   },
-  "cobertura_minima": 0.5,
-  "loc_sin_cobertura_alto": 200
+  "cobertura_minima": 0.3,
+  "loc_sin_cobertura_alto": 20,
+  "densidad_complejidad_alta": 0.15
 }

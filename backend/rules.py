@@ -19,6 +19,7 @@ def aplicar_reglas(
     loc: float | None = None,
     cobertura_tests: float | None = None,
     es_modulo_critico: bool = False,
+    v_g: float | None = None,
 ) -> dict:
     nivel_ia = clasificar_probabilidad(probabilidad)
     nivel = nivel_ia
@@ -30,11 +31,13 @@ def aplicar_reglas(
 
     cobertura_min = float(CFG["cobertura_minima"])
     loc_limite = float(CFG["loc_sin_cobertura_alto"])
-    if cobertura_tests is not None and loc is not None:
-        if cobertura_tests < cobertura_min and loc >= loc_limite:
+    densidad_alta = float(CFG["densidad_complejidad_alta"])
+    if cobertura_tests is not None and loc is not None and loc > 0 and v_g is not None:
+        densidad = v_g / loc
+        if cobertura_tests < cobertura_min and loc >= loc_limite and densidad >= densidad_alta:
             nivel = "alto"
             razones.append(
-                f"regla: cobertura {cobertura_tests:.0%} < {cobertura_min:.0%} y LOC {loc:.0f} >= {loc_limite:.0f}"
+                f"regla: cobertura {cobertura_tests:.0%} < {cobertura_min:.0%}, LOC {loc:.0f} >= {loc_limite:.0f} y densidad v(g)/LOC {densidad:.3f} >= {densidad_alta:.3f}"
             )
 
     return {

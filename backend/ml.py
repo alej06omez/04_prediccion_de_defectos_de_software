@@ -126,6 +126,7 @@ def predict(payload: dict) -> dict:
         loc=loc,
         cobertura_tests=payload.get("cobertura_tests"),
         es_modulo_critico=bool(payload.get("es_modulo_critico", False)),
+        v_g=float(x_df.iloc[0]["v(g)"]),
     )
     return {
         "module_id": str(payload.get("module_id", "sin-id")),

@@ -32,3 +32,9 @@ def test_full_metric_contract_is_identical_between_runs():
 def test_preprocessor_lines_are_not_counted_as_halstead_tokens():
     without_include = SAMPLE_C.replace("#include <stdio.h>\n", "")
     assert compute_halstead(SAMPLE_C) == compute_halstead(without_include)
+
+
+def test_static_complexity_is_averaged_per_function():
+    code = "int a(void) { return 1; }\nint b(void) { if (1) return 2; return 0; }"
+    metrics = extract_static_metrics(code)
+    assert metrics["v_g"] == 1.5

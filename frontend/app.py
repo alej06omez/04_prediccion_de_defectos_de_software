@@ -177,7 +177,7 @@ with tab5:
 **Reglas de negocio (deterministas):**
 - Umbrales: bajo < {medio}, medio >= {medio}, alto >= {alto}.
 - Si el modulo es critico, un bajo se eleva a medio.
-- Si la cobertura de tests es menor a {cov:.0%} y LOC >= {loc:.0f}, el nivel pasa a alto.
+- Si la cobertura es menor a {cov:.0%}, LOC >= {loc:.0f} y v(g)/LOC >= {densidad:.3f}, el nivel pasa a alto.
 
 **No hace el modelo:** bloquear un merge, asignar un revisor, ni decidir el semaforo final cuando hay overrides.
         """.format(
@@ -185,6 +185,7 @@ with tab5:
             alto=schema.get("umbrales_riesgo", {}).get("alto", 0.6),
             cov=cfg.get("cobertura_minima", 0.5),
             loc=cfg.get("loc_sin_cobertura_alto", 200),
+            densidad=cfg.get("densidad_complejidad_alta", 0.15),
         )
     )
     st.code(API + "/docs")
